@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import multer from 'multer';
+import vision from '@google-cloud/vision';
 
 dotenv.config();
 
@@ -12,6 +13,9 @@ const upload = multer({dest:'uploads/'});
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
+
+const client = new vision.ImageAnnotatorClient({keyFilename:'omaope-vision.json'});
+
 
 app.use(express.static('public'));
 app.post('/chat', async(req,res) =>{
@@ -40,7 +44,8 @@ app.post('/chat', async(req,res) =>{
         res.json({reply});
 
     }catch(error){
-        
+        console.error('Virhe on tapahtunut', error.message);
+        res.status(500).json({error:server.message});
     }
     // if (question){
     //     res.json({question:`Käyttäjä sanoi ${question}`});
@@ -54,7 +59,19 @@ app.post('/upload-Images',upload.array('images',10) ,async(req,res)=>{
     const files = req.files;
     console.log(files);
     if(!files || files.length === 0){
-        return res.status(400).json({error:'No files uploaded'})
+        return res.status(400).json({error:'No files uploaded'});
+    }
+    try{
+        const texts = await Promise.all(files.map(async file =>{
+            const imagePath = file.path;
+            const [result] = await client.textDetection(imagePath);
+            const detections = result.textAnnotations;
+            return detections.length > 0 ? detections[0].description : '';
+        }))
+        console.log('ocr: ' + texts);
+    }catch(error){
+        console.error('Virhe on tapahtunut', error.message);
+        res.status(500).json({error:error.message})
     }
 });
 
