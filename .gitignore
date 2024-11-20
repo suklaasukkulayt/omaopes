@@ -82,6 +82,8 @@ web_modules/
 # omaope vison api
 omaope-vision.json
 
+#uploads folder
+uploads/
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
