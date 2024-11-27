@@ -1,3 +1,6 @@
+let currentQuestion = '';
+let correctAnswer = '';
+
 document.getElementById('send-button').addEventListener('click', sendMessage);
 document.getElementById('user-input').addEventListener('keypress', function(e){
     if(e.key === 'Enter'){
@@ -32,6 +35,11 @@ try{
         method:'POST',
         body:formData
     })
+
+    const data = await response.json();
+    console.log(data);
+
+
 }catch(error){
     console.error('Virhe on tapahtunut(miten tämä on mahdollista):',error);
 }
