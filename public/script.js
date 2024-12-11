@@ -11,7 +11,7 @@ document.getElementById('send-images-button').addEventListener('click', sendImag
 document.getElementById('send-answer-button').addEventListener('click', sendAnswer);
 
 
-function sendAnswer(){
+async function sendAnswer(){
     //console.log("Lähetetään vastausta");
     const answerInput = document.getElementById('answer-input').value;
     if(answerInput.trim() === '') return;
@@ -20,7 +20,15 @@ function sendAnswer(){
     addMessageToChatbox('Sinä: ' + answerInput,'user-message', 'omaopeboxi');
 
     try{
-
+        const response = await fetch('/check-answer',{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({user_answer: answerInput, correct_answer: correctAnswer})
+        });
+        const data = await response.json();
+        addMessageToChatbox('OmaOpe: ' + data.evaluation,'bot-message', 'omaopeboxi');
     }catch(error){
         console.log('Virhe on jotenkin tapahtunut;',error);
     }
